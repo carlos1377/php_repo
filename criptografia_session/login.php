@@ -12,7 +12,11 @@ if (isset($_POST['email'])) {
     $usuario = $sql_exec->fetch_assoc();
 
     if (password_verify($senha, $usuario['senha'])) {
-        echo "usuario logado!";
+        if(!isset($_SESSION)){
+            session_start();
+        }
+        $_SESSION['id'] = $usuario['id'];
+        header('Location: index.php');
     } else {
         echo "falha ao logar";
     }
@@ -31,8 +35,14 @@ if (isset($_POST['email'])) {
 
 <body>
     <form action="" method="post">
-        <input type="text" name="email"> <br>
-        <input type="text" name="senha"> <br>
+        <p>
+            <label for="">E-mail</label>
+            <input type="text" name="email"> <br>
+        </p>
+        <p>
+            <label for="">Senha</label>
+            <input type="text" name="senha"> <br>
+        </p>
         <button type="submit">LOGAR</button>
     </form>
 </body>
