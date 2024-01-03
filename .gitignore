@@ -1,0 +1,5 @@
+*.jpg
+
+vendor
+
+composer.lock
