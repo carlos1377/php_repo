@@ -1,5 +1,5 @@
 <?php
-include('connection.php');
+include('lib/connection.php');
 
 $sql_clientes = "SELECT * FROM clientes";
 
@@ -14,22 +14,27 @@ $num_clientes = $query_clientes->num_rows;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabela Clientes</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <style> 
-            table {
-                margin-left: auto;
-                margin-right: auto;
-                border-radius: 50px;
-            }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        table {
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 50px;
+        }
     </style>
 </head>
 
 <body>
-    <a href="cadastrar_cliente.php">Voltar para o cadastro</a>
-    <h1 style="text-align: center">Lista de Clientes</h1>
-    <p>Estes são os clientes cadastrados no seu sistema:</p>
+    <div class="container d-flex justify-content-center align-items-center">
+        <h1 style="text-align: center">Lista de Clientes</h1>
+    </div>
+    <div class="container d-flex justify-content-center align-items-center">
+        <p>Estes são os clientes cadastrados no seu sistema:</p>
+    </div>
     <table cellpadding="10" class="table table-bordered table-striped w-75 p-3">
         <thead>
+            <th>Foto</th>
             <th>ID</th>
             <th>Nome</th>
             <th>E-mail</th>
@@ -58,6 +63,9 @@ $num_clientes = $query_clientes->num_rows;
                         ?>
                     <tr>
                         <td>
+                            <img height="50" src="<?php echo $cliente['foto'];?>" alt="">
+                        </td>
+                        <td>
                             <?php echo $cliente['id']; ?>
                         </td>
                         <td>
@@ -84,6 +92,11 @@ $num_clientes = $query_clientes->num_rows;
             } ?>
         </tbody>
     </table>
+    <div class="container d-flex justify-content-center align-items-center">
+        <p class="text-center">
+            <a href="cadastrar_cliente.php">Voltar para o cadastro</a>
+        </p>
+    </div>
 </body>
 
 </html>

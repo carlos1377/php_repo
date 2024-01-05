@@ -2,30 +2,36 @@
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-require '/../vendor/autoload.php';
+function enviar_email($destinatario, $assunto, $mensagemHTML)
+{
 
-$mail = new PHPMailer;
-$mail->isSMTP();
-$mail->SMTPDebug = 1;
-$mail->Host = 'smtp.gmail.com';
-$mail->Port = 587;
-$mail->SMTPAuth = true;
-$mail->Username = 'carloseduardoorso1@gmail.com';
-$mail->Password = 'fuvd vmzt fdon jedm';
+    require '../vendor/autoload.php';
 
-$mail->SMTPSecure = '**tls**';
-$mail->isHTML(true);
-$mail->CharSet = 'UTF-8';
+    $mail = new PHPMailer;
+    $mail->isSMTP();
+    $mail->SMTPDebug = 0;
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Port = 587;
+    $mail->SMTPAuth = true;
+    $mail->Username = 'carloseduardoorso1@gmail.com';
+    $mail->Password = 'pbtf vlit ztcf rqbj';
 
-$mail->setFrom('carloseduardoorso1@gmail.com', 'Carlos Orso');
-$mail->addAddress('yavet26495@watrf.com');
-$mail->Subject = 'E-mail de teste';
+    $mail->SMTPSecure = false;
+    $mail->isHTML(true);
+    $mail->CharSet = 'UTF-8';
 
-$mail->Body = '<h1>Email enviado com sucesso!</h1><p>Parabéns, deu tudo certo!</p>';
+    $mail->setFrom('carloseduardoorso1@gmail.com', 'Carlos Orso');
+    $mail->addAddress($destinatario);
+    $mail->Subject = $assunto;
 
-if($mail->send()){
-    echo 'email enviado';
-}else{
-    echo 'falha ao enviar o email';
+    $mail->Body = $mensagemHTML;
+
+    if ($mail->send()) {
+        echo 'email enviado';
+        return true;
+    } else {
+        echo 'falha ao enviar o email';
+        return false;
+    }
 }
 ?>

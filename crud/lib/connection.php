@@ -2,7 +2,6 @@
 
 $hostname = "localhost";
 $database = "crud_clientes";
-// $table = "clientes";
 $username = "root";
 $password = "";
 

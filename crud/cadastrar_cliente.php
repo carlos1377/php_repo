@@ -8,13 +8,23 @@ function limpar_texto($str)
 
 if (count($_POST) > 0) {
 
-    include('connection.php');
+    include('lib/connection.php');
+    include('lib/upload.php');
+    include('lib/mail.php');
+
     $erro = false;
 
     $nome = $_POST['nome'];
     $email = $_POST['email'];
     $telefone = $_POST['telefone'];
     $nascimento = $_POST['data_nascimento'];
+    $senha_descriptografada = $_POST['senha'];
+
+    if (strlen($senha_descriptografada) < 6 || strlen($senha_descriptografada) > 16) {
+        $erro = "A senha deve ter entre 6 e 16 caracteres.";
+    }
+
+
 
     if (empty($nome)) {
         $erro = "Preencha o nome";
@@ -37,15 +47,33 @@ if (count($_POST) > 0) {
             $erro = "O telefone deve ser preenchido no padrão (11) 98765-4321";
         }
     }
+    $path = "";
+    if(isset($_FILES['foto'])){
+        $arq = $_FILES['foto'];
+        $path = enviarArquivo($arq['error'], $arq['size'], $arq['name'], $arq['tmp_name']);
+        if($path == false){
+            $erro = "Falha ao enviar arquivo, tente novamente.";
+        }
+    }
 
     if ($erro) {
         echo "<p><b>ERRO: $erro </b></p>";
     } else {
-        $sql = "INSERT INTO clientes (nome, email, telefone, nascimento, data_cadastro)
-        VALUES ('$nome', '$email', '$telefone', '$nascimento', NOW())";
+        $senha = password_hash($senha_descriptografada, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO clientes (nome, email, senha, telefone, nascimento, data_cadastro, foto)
+        VALUES ('$nome', '$email', '$senha', '$telefone', '$nascimento', NOW(), '$path')";
         $allok = $mysqli->query($sql) or die($mysqli->errno);
         if ($allok) {
-            echo "<p><b>Cliente cadstrado com sucesso</b></p>";
+            enviar_email($email, "Sua conta no meu site foi criada!", "
+                <h1>Parabéns!!</h1>
+                <p>Sua conta no meu site SiteImaginario.com foi criada com sucesso! </p>
+                <p>
+                    <b>Login:</b> $email <br>
+                    <b>Senha:</b> $senha_descriptografada
+                </p>
+                <p> Para fazer login acesse <a href=\"https://siteimaginario.com/login.php\">este link. </a></p>
+            ");
+            echo "<p><b>Cliente cadastrado com sucesso</b></p>";
             unset($_POST);
         }
     }
@@ -64,7 +92,7 @@ if (count($_POST) > 0) {
 </head>
 
 <body>
-    <form action="" method="post">
+    <form enctype="multipart/form-data" action="" method="post">
         <a href="clientes.php">Voltar para a lista</a>
         <p>
             <label>Nome</label>
@@ -79,14 +107,21 @@ if (count($_POST) > 0) {
         <p>
             <label>Telefone</label>
             <input value="<?php if (isset($_POST['telefone']))
-                echo $_POST['telefone']; ?>" placeholder="(11) 98765-4321"
-                name="telefone" type="text">
+                echo $_POST['telefone']; ?>" placeholder="(11) 98765-4321" name="telefone" type="text">
         </p>
         <p>
             <label>Data de Nascimento</label>
             <input value="<?php if (isset($_POST['data_nascimento']))
-                echo $_POST['data_nascimento']; ?>"
-                name="data_nascimento" type="date">
+                echo $_POST['data_nascimento']; ?>" name="data_nascimento" type="date">
+        </p>
+        <p>
+            <label>Senha</label>
+            <input value="<?php if (isset($_POST['senha']))
+                echo $_POST['senha']; ?>" name="senha" type="text">
+        </p>
+        <p>
+            <label>Foto do Usuário</label>
+            <input name="foto" type="file">
         </p>
         <p><button type="submit">Salvar cliente</button></p>
     </form>
