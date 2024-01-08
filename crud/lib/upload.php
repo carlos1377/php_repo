@@ -1,9 +1,13 @@
 <?php
-function enviarArquivo($error, $size, $name, $tmp_name){
-    if($error){
-        die('Falha ao enviar o arquivo');
+function enviarArquivo($error, $size, $name, $tmp_name)
+{
+    if ($error == 4) {
+        return $error;
     }
-    if($size > 2097152){
+    if ($error) {
+        die('Falha ao enviar o arquivo ' . $error);
+    }
+    if ($size > 2097152) {
         die('Arquivo muito grande, máximo: 2MB');
     }
     $folder = './files/';
@@ -16,9 +20,9 @@ function enviarArquivo($error, $size, $name, $tmp_name){
     }
     $path = $folder . $newNameFile . '.' . $extension;
     $deu_certo = move_uploaded_file($tmp_name, $path);
-    if($deu_certo){
+    if ($deu_certo) {
         return $path;
-    }else{
+    } else {
         return false;
     }
 }

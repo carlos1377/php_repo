@@ -1,4 +1,13 @@
 <?php
+
+if (!isset($_SESSION)) {
+    session_start();
+}
+if (!isset($_SESSION['admin']) || !$_SESSION['admin']) {
+    header('Location: index.php');
+    die();
+}
+
 include('lib/connection.php');
 include('lib/upload.php');
 
@@ -20,6 +29,8 @@ if (count($_POST) > 0) {
     $nascimento = $_POST['data_nascimento'];
     $senha = $_POST['senha'];
     $sql_code_extra = "";
+    $path = "";
+    $admin = $_POST['admin'];
 
     $alterar_senha = false;
     if (!empty($senha)) {
@@ -27,7 +38,7 @@ if (count($_POST) > 0) {
             $erro = "A senha deve ter entre 6 e 16 caracteres.";
         } else {
             $senha_criptografada = password_hash($senha, PASSWORD_DEFAULT);
-            $sql_code_extra .= "senha = '$senha_criptografada',";
+            $sql_code_extra .= " senha = '$senha_criptografada', ";
         }
     }
 
@@ -52,29 +63,36 @@ if (count($_POST) > 0) {
             $erro = "O telefone deve ser preenchido no padrão (11) 98765-4321";
         }
     }
-    if(isset($_FILES['foto'])){
+    if (isset($_FILES['foto'])) {
         $arq = $_FILES['foto'];
         $path = enviarArquivo($arq['error'], $arq['size'], $arq['name'], $arq['tmp_name']);
-        if($path == false){
-            $erro = "Falha ao enviar arquivo, tente novamente.";
-        }else{
-            $sql_code_extra .= "foto = '$path'," ;
+        if ($path != 4) {
+            if ($path == false) {
+                $erro = "Falha ao enviar arquivo, tente novamente.";
+            } else {
+                $sql_code_extra .= " foto = '$path', ";
+                if (!empty($_POST['foto_antiga'])) {
+                    unlink($_POST['foto_antiga']);
+                }
+            }
         }
     }
 
     if ($erro) {
         echo "<p><b>ERRO: $erro </b></p>";
     } else {
-        $sql = " UPDATE clientes
+        $sql = "UPDATE clientes
         SET nome = '$nome',
         email = '$email',
         $sql_code_extra
         telefone = '$telefone',
-        nascimento = '$nascimento'
+        nascimento = '$nascimento',
+        admin = '$admin'
         WHERE id = '$id'";
-        $allok = $mysqli->query($sql) or die($mysqli->errno);
+        $allok = $mysqli->query($sql) or die($mysqli->error);
         if ($allok) {
             echo "<p><b>Cliente Atualizado com sucesso</b></p>";
+
             unset($_POST);
         }
     }
@@ -98,7 +116,7 @@ $cliente = $query_cliente->fetch_assoc();
 </head>
 
 <body>
-    <form enctype="multipar/form-data" action="" method="post">
+    <form enctype="multipart/form-data" action="" method="post">
         <a href="clientes.php">Voltar para a lista</a>
         <p>
             <label>Nome</label>
@@ -115,14 +133,14 @@ $cliente = $query_cliente->fetch_assoc();
         <p>
             <label>Telefone</label>
             <input value="<?php if (!empty($cliente['telefone']))
-                echo formatar_telefone($cliente['telefone']); ?>" placeholder="(11) 98765-4321" name="telefone"
-                type="text">
+                                echo formatar_telefone($cliente['telefone']); ?>" placeholder="(11) 98765-4321" name="telefone" type="text">
         </p>
         <p>
             <label>Data de Nascimento</label>
             <input value="<?php if (!empty($cliente['nascimento']))
-                echo formatar_data($cliente['nascimento']); ?>" name="data_nascimento">
+                                echo formatar_data($cliente['nascimento']); ?>" name="data_nascimento">
         </p>
+        <input name="foto_antiga" value="<?php echo $cliente['foto']; ?>" type="hidden">
         <?php
         if (isset($cliente['foto'])) { ?>
             <p>
@@ -133,6 +151,11 @@ $cliente = $query_cliente->fetch_assoc();
         <p>
             <label for="">Nova foto de Usuário</label>
             <input name="foto" type="file">
+        </p>
+        <p>
+            <label>Tipo: </label>
+            <input name="admin" value="1" type="radio">ADMIN
+            <input name="admin" value="0" checked type="radio">CLIENTE<br>
         </p>
         <p><button type="submit">Salvar cliente</button></p>
     </form>

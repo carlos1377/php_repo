@@ -1,5 +1,5 @@
 *.jpg
-
-vendor
+*.png
+vendor/
 
 composer.lock
